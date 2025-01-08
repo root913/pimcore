@@ -56,9 +56,12 @@ class DataObjectController extends UserAwareController
         $objects = json_decode($res->getContent(), true)['data'];
 
         if ($request->query->has('data')) {
-            foreach (json_decode($request->query->getString('data'), true) as $preSelectedElement) {
-                if (isset($preSelectedElement['id'], $preSelectedElement['type'])) {
-                    $objects[] = ['id' => $preSelectedElement['id'], 'type' => $preSelectedElement['type']];
+            $dataArray = json_decode($request->query->getString('data'), true);
+            if (is_array($dataArray)) {
+                foreach ($dataArray as $preSelectedElement) {
+                    if (isset($preSelectedElement['id'], $preSelectedElement['type'])) {
+                        $objects[] = ['id' => $preSelectedElement['id'], 'type' => $preSelectedElement['type']];
+                    }
                 }
             }
         }
