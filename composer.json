@@ -129,6 +129,7 @@
     "umpirsky/country-list": "^2.0.6"
   },
   "conflict": {
+    "doctrine/doctrine-migrations-bundle": "3.4.0",
     "pimcore/admin-ui-classic-bundle": "<1.5",
     "phpstan/phpdoc-parser": ">=2.0",
     "sabre/dav": "4.2.2",
