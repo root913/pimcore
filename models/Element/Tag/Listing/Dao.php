@@ -31,13 +31,16 @@ class Dao extends Model\Listing\Dao\AbstractDao
      */
     public function load(): array
     {
-        $tagsData = $this->db->fetchFirstColumn('SELECT id FROM tags' . $this->getCondition() . $this->getOrder() . $this->getOffsetLimit(), $this->model->getConditionVariables());
+        $tagsData = $this->db->fetchAllAssociative('SELECT * FROM tags' . $this->getCondition() . $this->getOrder() . $this->getOffsetLimit(), $this->model->getConditionVariables());
 
         $tags = [];
+        $modelFactory = \Pimcore::getContainer()->get('pimcore.model.factory');
         foreach ($tagsData as $tagData) {
-            if ($tag = Model\Element\Tag::getById($tagData)) {
-                $tags[] = $tag;
-            }
+            /** @var Model\Element\Tag $tag */
+            $tag = $modelFactory->build(Model\Element\Tag::class);
+            $tag->getDao()->assignVariablesToModel($tagData);
+
+            $tags[] = $tag;
         }
 
         $this->model->setTags($tags);
