@@ -32,22 +32,74 @@ class Dao extends Model\Listing\Dao\AbstractDao
      */
     public function load(): array
     {
-        $notesData = $this->db->fetchFirstColumn(
-            'SELECT id FROM notes' . $this->getCondition() . $this->getOrder() . $this->getOffsetLimit(),
+        $notesData = $this->db->fetchAllAssociative(
+            'SELECT * FROM notes' . $this->getCondition() . $this->getOrder() . $this->getOffsetLimit(),
             $this->model->getConditionVariables(),
             $this->model->getConditionVariableTypes()
         );
 
         $notes = [];
+        $modelFactory = \Pimcore::getContainer()->get('pimcore.model.factory');
+
+        $ids = array_column($notesData, 'id');
+        $data = $this->loadDataList($ids);
+
         foreach ($notesData as $noteData) {
-            if ($note = Model\Element\Note::getById($noteData)) {
-                $notes[] = $note;
-            }
+            /** @var Model\Element\Note $note */
+            $note = $modelFactory->build(Model\Element\Note::class);
+            $note->getDao()->assignVariablesToModel($noteData);
+            $note->setData($data[$note->getId()] ?? []);
+
+            $notes[] = $note;
         }
 
         $this->model->setNotes($notes);
 
         return $notes;
+    }
+
+    public function loadDataList(array $ids): array
+    {
+        $keyValues = $this->db->fetchAllAssociative('SELECT * FROM notes_data WHERE id IN (' . implode(',', $ids) . ')');
+        $list = [];
+        foreach ($keyValues as $keyValue) {
+            $id = $keyValue['id'];
+            $data = $keyValue['data'];
+            $type = $keyValue['type'];
+            $name = $keyValue['name'];
+            if (!array_key_exists($id, $list)) {
+                $list[$id] = [];
+            }
+
+            if ($type == 'document') {
+                if ($data) {
+                    $data = Model\Document::getById($data);
+                }
+            } elseif ($type == 'asset') {
+                if ($data) {
+                    $data = Model\Asset::getById($data);
+                }
+            } elseif ($type == 'object') {
+                if ($data) {
+                    $data = Model\DataObject::getById($data);
+                }
+            } elseif ($type == 'date') {
+                if ($data > 0) {
+                    $date = new \DateTime();
+                    $date->setTimestamp($data);
+                    $data = $date;
+                }
+            } elseif ($type == 'bool') {
+                $data = (bool) $data;
+            }
+
+            $list[$id][$name] = [
+                'data' => $data,
+                'type' => $type,
+            ];
+        }
+
+        return $list;
     }
 
     /**
