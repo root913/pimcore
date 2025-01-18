@@ -15,7 +15,9 @@
 
 namespace Pimcore\Model\Element\Note\Listing;
 
+use DateTime;
 use Exception;
+use Pimcore;
 use Pimcore\Model;
 
 /**
@@ -39,7 +41,7 @@ class Dao extends Model\Listing\Dao\AbstractDao
         );
 
         $notes = [];
-        $modelFactory = \Pimcore::getContainer()->get('pimcore.model.factory');
+        $modelFactory = Pimcore::getContainer()->get('pimcore.model.factory');
 
         $ids = array_column($notesData, 'id');
         $data = $this->loadDataList($ids);
@@ -85,7 +87,7 @@ class Dao extends Model\Listing\Dao\AbstractDao
                 }
             } elseif ($type == 'date') {
                 if ($data > 0) {
-                    $date = new \DateTime();
+                    $date = new DateTime();
                     $date->setTimestamp($data);
                     $data = $date;
                 }

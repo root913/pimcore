@@ -16,6 +16,7 @@
 namespace Pimcore\Model\Element\Tag\Listing;
 
 use Exception;
+use Pimcore;
 use Pimcore\Model;
 
 /**
@@ -34,7 +35,7 @@ class Dao extends Model\Listing\Dao\AbstractDao
         $tagsData = $this->db->fetchAllAssociative('SELECT * FROM tags' . $this->getCondition() . $this->getOrder() . $this->getOffsetLimit(), $this->model->getConditionVariables());
 
         $tags = [];
-        $modelFactory = \Pimcore::getContainer()->get('pimcore.model.factory');
+        $modelFactory = Pimcore::getContainer()->get('pimcore.model.factory');
         foreach ($tagsData as $tagData) {
             /** @var Model\Element\Tag $tag */
             $tag = $modelFactory->build(Model\Element\Tag::class);

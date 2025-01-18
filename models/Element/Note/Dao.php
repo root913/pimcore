@@ -15,7 +15,6 @@
 
 namespace Pimcore\Model\Element\Note;
 
-use DateTime;
 use DateTimeInterface;
 use Exception;
 use Pimcore\Db\Helper;
